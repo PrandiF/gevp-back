@@ -6,7 +6,7 @@ type EventoProps = {
   deporte: string;
   nombreSocio: string;
   evento: string;
-  fecha: Date;
+  fecha: string;
   horarioInicio: string;
   horarioFin: string;
 };
@@ -126,6 +126,8 @@ const filterEventos = async (
   const offset = (page - 1) * pageSize;
   const limit = pageSize;
   const whereClause: any = {};
+
+  // Filtros de texto
   if (filters.gimnasio) {
     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
   }
@@ -138,6 +140,15 @@ const filterEventos = async (
   if (filters.evento) {
     whereClause.evento = { [Op.iLike]: `%${filters.evento}%` };
   }
+
+  // Filtro de fecha
+  if (filters.fecha) {
+    const startDate = new Date(`${filters.fecha}T00:00:00Z`);
+    const endDate = new Date(`${filters.fecha}T23:59:59Z`);
+    whereClause.fecha = { [Op.between]: [startDate, endDate] };
+  }
+
+  // Filtros de horario
   if (filters.horarioInicio && filters.horarioFin) {
     whereClause.horarioInicio = { [Op.gte]: filters.horarioInicio };
     whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
@@ -146,6 +157,8 @@ const filterEventos = async (
   } else if (filters.horarioFin) {
     whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
   }
+
+  // Búsqueda y conteo de resultados
   const { count, rows } = await Evento.findAndCountAll({
     where: whereClause,
     order: [["id", "ASC"]],

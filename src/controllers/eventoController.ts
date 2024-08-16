@@ -8,7 +8,7 @@ type EventoProps = {
   nombreSocio: string;
   evento: string;
   estado: string;
-  fecha: Date;
+  fecha: string;
   horarioInicio: string;
   horarioFin: string;
 };
@@ -114,11 +114,14 @@ const filterEventos = async (req: Request, res: Response) => {
     // if (req.query.deporte) filters.deporte = req.query.deporte as string;
     // if (req.query.nombreSocio) filters.nombreSocio = req.query.nombreSocio as string;
     // if (req.query.evento) filters.evento = req.query.evento as string;
-    if (req.query.fecha) filters.fecha = new Date(req.query.fecha as string);
+    if (req.query.fecha) filters.fecha = req.query.fecha as string;
     if (req.query.horarioFin)
       filters.horarioFin = req.query.horarioFin as string;
     if (req.query.horarioInicio)
       filters.horarioInicio = req.query.horarioInicio as string;
+
+    console.log("Filtros recibidos:", filters);
+
     const Eventos = await eventoService.filterEventos(filters, page, pageSize);
     res.status(200).send(Eventos);
   } catch (error) {
