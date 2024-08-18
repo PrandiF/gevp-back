@@ -14,13 +14,13 @@ const PORT = process.env.PORT;
 // const PORT_PROD = process.env.PORT_PROD;
 
 app.use(express.json());
-app.use(morgan("dev"))
+app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );

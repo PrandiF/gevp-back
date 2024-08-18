@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import eventoService from "../services/polizaService";
+import eventoService from "../services/eventoService";
 // import { body, param, validationResult } from 'express-validator';
 
 type EventoProps = {
@@ -115,10 +115,8 @@ const filterEventos = async (req: Request, res: Response) => {
     // if (req.query.nombreSocio) filters.nombreSocio = req.query.nombreSocio as string;
     // if (req.query.evento) filters.evento = req.query.evento as string;
     if (req.query.fecha) filters.fecha = req.query.fecha as string;
-    if (req.query.horarioFin)
-      filters.horarioFin = req.query.horarioFin as string;
-    if (req.query.horarioInicio)
-      filters.horarioInicio = req.query.horarioInicio as string;
+    if (req.query.horarioFin) filters.horarioFin = req.query.horarioFin as string;
+    if (req.query.horarioInicio) filters.horarioInicio = req.query.horarioInicio as string;
 
     console.log("Filtros recibidos:", filters);
 

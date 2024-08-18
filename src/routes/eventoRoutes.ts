@@ -10,9 +10,6 @@ router
   .get("/:id", eventoController.viewEventoById)
   .put("/:id", eventoController.editEventoById)
   .delete("/:id", eventoController.deleteEventoById)
-  .post(
-    "/disponibilidad",
-    eventoController.verificarHorarioDisponible
-  );
+  .post("/disponibilidad", eventoController.verificarHorarioDisponible);
 
 export default router;
