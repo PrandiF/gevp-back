@@ -6,13 +6,53 @@ type HorarioProps = {
   gimnasio: string;
   deporte: string;
   categoria: string;
+  quienCarga: string;
   horarioInicio: string;
   horarioFin: string;
 };
+const verificarHorarioDisponible = async (req: Request, res: Response) => {
+  const { gimnasio, dia, horarioInicio, horarioFin } = req.body;
+
+  // Verifica que todos los campos necesarios estén presentes
+  if (!gimnasio || !dia || !horarioInicio || !horarioFin) {
+    return res.status(400).json({ message: "Faltan parámetros necesarios." });
+  }
+
+  try {
+    // Verifica la disponibilidad del horario utilizando el servicio
+    const entrenamientoExistente = await horarioService.verificarDisponibilidad(
+      gimnasio,
+      dia,
+      horarioInicio,
+      horarioFin
+    );
+
+    // Devuelve una respuesta basada en la disponibilidad del horario
+    if (entrenamientoExistente) {
+      return res
+        .status(200)
+        .json({ disponible: false, message: "El horario ya está ocupado." });
+    } else {
+      return res.status(200).json({ disponible: true });
+    }
+  } catch (error) {
+    console.error("Error al verificar la disponibilidad del horario:", error);
+    return res
+      .status(500)
+      .json({ message: "Error al verificar la disponibilidad del horario." });
+  }
+};
 
 const createHorario = async (req: Request, res: Response) => {
-  const { dia, gimnasio, deporte, categoria, horarioInicio, horarioFin } =
-    req.body;
+  const {
+    dia,
+    gimnasio,
+    deporte,
+    categoria,
+    horarioInicio,
+    horarioFin,
+    quienCarga,
+  } = req.body;
 
   try {
     const nuevoHorario = await horarioService.createHorario({
@@ -20,6 +60,7 @@ const createHorario = async (req: Request, res: Response) => {
       gimnasio,
       deporte,
       categoria,
+      quienCarga,
       horarioInicio,
       horarioFin,
     });
@@ -82,7 +123,9 @@ const editHorarioById = async (req: Request, res: Response) => {
 
 const deleteHorarioById = async (req: Request, res: Response) => {
   try {
-    const response = await horarioService.deleteHorarioById(parseInt(req.params.id));
+    const response = await horarioService.deleteHorarioById(
+      parseInt(req.params.id)
+    );
     if (!response) {
       return res.status(400).send("Horario not found");
     } else {
@@ -128,4 +171,5 @@ export default {
   editHorarioById,
   deleteHorarioById,
   filterHorarios,
+  verificarHorarioDisponible
 };

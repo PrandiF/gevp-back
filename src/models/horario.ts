@@ -26,6 +26,10 @@ Horario.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    quienCarga: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     horarioInicio: {
       type: DataTypes.TIME,
       allowNull: false,

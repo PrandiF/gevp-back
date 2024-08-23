@@ -6,13 +6,71 @@ type HorarioProps = {
   gimnasio: string;
   deporte: string;
   categoria: string;
+  quienCarga: string;
   horarioInicio: string;
   horarioFin: string;
 };
 
-const createHorario = async (data: HorarioProps) => {
-  return await Horario.create({ ...data });
+const verificarDisponibilidad = async (
+  gimnasio: string,
+  dia: string,
+  horarioInicio: string,
+  horarioFin: string
+) => {
+  try {
+    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+
+    const entrenamientoExistente = await Horario.findAll({
+      where: {
+        gimnasio,
+        dia,
+        [Op.and]: [
+          {
+            horarioInicio: {
+              [Op.lt]: formatTime(horarioFin), // El nuevo evento comienza antes de que el existente termine
+            },
+          },
+          {
+            horarioFin: {
+              [Op.gt]: formatTime(horarioInicio), // El nuevo evento termina después de que el existente comience
+            },
+          },
+        ],
+      },
+    });
+
+    return entrenamientoExistente.length > 0; // Devuelve true si hay eventos existentes, indicando que el horario está ocupado
+  } catch (error) {
+    console.error("Error al verificar la disponibilidad del horario:", error);
+    throw error;
+  }
 };
+
+const createHorario = async (data: HorarioProps) => {
+  try {
+    // Asegúrate de que los horarios estén en formato HH:mm
+    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+
+    const entrenamientoExistente = await verificarDisponibilidad(
+      data.gimnasio,
+      data.dia,
+      formatTime(data.horarioInicio),
+      formatTime(data.horarioFin)
+    );
+
+    if (entrenamientoExistente) {
+      throw new Error("El horario ya está ocupado.");
+    } else {
+      const nuevoEntrenamiento = await Horario.create({ ...data });
+      return nuevoEntrenamiento;
+    }
+  } catch (error) {
+    console.error("Error al crear el entrenamiento:", error);
+    throw error; // Lanza el error para manejarlo en el controlador
+  }
+};
+
+
 
 const getHorarios = async (page: number, pageSize: number) => {
   const offset = (page - 1) * pageSize;
@@ -107,4 +165,5 @@ export default {
   editHorarioById,
   deleteHorarioById,
   filterHorarios,
+  verificarDisponibilidad
 };

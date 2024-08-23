@@ -1,14 +1,41 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import db from "./database";
 
-class Evento extends Model {}
+// Define una interfaz para los atributos de tu modelo
+interface EventoAttributes {
+  id: number;
+  gimnasio: string;
+  deporte: string;
+  fecha: Date;
+  nombreSocio: string;
+  evento: string;
+  quienCarga: string;
+  horarioInicio: string;
+  horarioFin: string;
+}
+
+// Define una interfaz para la creación de un evento
+interface EventoCreationAttributes extends Optional<EventoAttributes, "id"> {}
+
+class Evento extends Model<EventoAttributes, EventoCreationAttributes>
+  implements EventoAttributes {
+  public id!: number;
+  public gimnasio!: string;
+  public deporte!: string;
+  public fecha!: Date;
+  public nombreSocio!: string;
+  public evento!: string;
+  public quienCarga!: string;
+  public horarioInicio!: string;
+  public horarioFin!: string;
+}
 
 Evento.init(
   {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,  
-      primaryKey: true,     
+      autoIncrement: true,
+      primaryKey: true,
     },
     gimnasio: {
       type: DataTypes.STRING,
@@ -19,7 +46,7 @@ Evento.init(
       allowNull: false,
     },
     fecha: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     nombreSocio: {
@@ -27,6 +54,10 @@ Evento.init(
       allowNull: false,
     },
     evento: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    quienCarga: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -43,33 +74,7 @@ Evento.init(
     sequelize: db,
     modelName: "eventos",
     timestamps: false,
-    // hooks: {
-    //   beforeSave: (poliza, options) => {
-    //     actualizarEstado(poliza);
-    //   },
-    //   beforeUpdate: (poliza, options) => {
-    //     actualizarEstado(poliza);
-    //   },
-    //   afterFind: (polizas, options) => {
-    //     if (Array.isArray(polizas)) {
-    //       polizas.forEach((poliza) => actualizarEstado(poliza));
-    //     } else if (polizas) {
-    //       actualizarEstado(polizas);
-    //     }
-    //   },
-    // },
   }
 );
-
-// function actualizarEstado(poliza: any) {
-//   const hoy = new Date();
-//   if (poliza.estado !== "ANULADA") {
-//     if (poliza.vigenciaFin < hoy) {
-//       poliza.estado = "VENCIDA";
-//     } else {
-//       poliza.estado = "VIGENTE";
-//     }
-//   }
-// }
 
 export default Evento;

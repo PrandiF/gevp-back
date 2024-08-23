@@ -6,80 +6,87 @@ type EventoProps = {
   deporte: string;
   nombreSocio: string;
   evento: string;
-  fecha: string;
+  fecha: Date;
+  quienCarga: string;
   horarioInicio: string;
   horarioFin: string;
 };
 
 const verificarDisponibilidad = async (
   gimnasio: string,
-  fecha: string,
+  fecha: Date,
   horarioInicio: string,
   horarioFin: string
 ) => {
-  const startTime = new Date(`1970-01-01T${horarioInicio}:00Z`);
-  const endTime = new Date(`1970-01-01T${horarioFin}:00Z`);
+  try {
+    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
 
-  const eventos = await Evento.findAll({
-    where: {
-      gimnasio,
-      fecha,
-      [Op.or]: [
-        {
-          horarioInicio: {
-            [Op.between]: [startTime, endTime],
+    const eventoExistente = await Evento.findAll({
+      where: {
+        gimnasio,
+        fecha,
+        [Op.and]: [
+          {
+            horarioInicio: {
+              [Op.lt]: formatTime(horarioFin), // El nuevo evento comienza antes de que el existente termine
+            },
           },
-        },
-        {
-          horarioFin: {
-            [Op.between]: [startTime, endTime],
+          {
+            horarioFin: {
+              [Op.gt]: formatTime(horarioInicio), // El nuevo evento termina después de que el existente comience
+            },
           },
-        },
-        {
-          [Op.and]: [
-            { horarioInicio: { [Op.lte]: startTime } },
-            { horarioFin: { [Op.gte]: endTime } },
-          ],
-        },
-      ],
-    },
-  });
+        ],
+      },
+    });
 
-  return eventos.length === 0; // true si está disponible, false si no lo está
+    return eventoExistente.length > 0; // Devuelve true si hay eventos existentes, indicando que el horario está ocupado
+  } catch (error) {
+    console.error("Error al verificar la disponibilidad del horario:", error);
+    throw error;
+  }
 };
 
 const createEvento = async (
   gimnasio: string,
   deporte: string,
-  fecha: string,
+  fecha: Date,
   nombreSocio: string,
   evento: string,
+  quienCarga: string,
   horarioInicio: string,
   horarioFin: string
 ) => {
-  const disponible = await verificarDisponibilidad(
-    gimnasio,
-    fecha,
-    horarioInicio,
-    horarioFin
-  );
+  try {
+    // Asegúrate de que los horarios estén en formato HH:mm
+    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
 
-  if (!disponible) {
-    throw new Error("El horario ya está ocupado.");
+    const eventoExistente = await verificarDisponibilidad(
+      gimnasio,
+      fecha,
+      formatTime(horarioInicio),
+      formatTime(horarioFin)
+    );
+
+    if (eventoExistente) {
+      throw new Error("El horario ya está ocupado.");
+    } else {
+      const nuevoEvento = await Evento.create({
+        gimnasio,
+        deporte,
+        fecha,
+        nombreSocio,
+        evento,
+        quienCarga,
+        horarioInicio: formatTime(horarioInicio),
+        horarioFin: formatTime(horarioFin),
+      });
+      return nuevoEvento;
+    }
+  } catch (error) {
+    console.error("Error al crear el evento:", error);
+    throw error; // Lanza el error para manejarlo en el controlador
   }
-
-  // Si está disponible, crea el evento
-  const nuevoEvento = await Evento.create({
-    gimnasio,
-    deporte,
-    fecha,
-    nombreSocio,
-    evento,
-    horarioInicio,
-    horarioFin,
-  });
-
-  return nuevoEvento;
 };
 
 const viewEventos = async (page: number, pageSize: number) => {

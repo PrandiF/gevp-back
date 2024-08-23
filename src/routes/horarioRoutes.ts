@@ -9,7 +9,7 @@ router
   .get("/filter", horarioController.filterHorarios)
   .get("/:id", horarioController.getHorarioById)
   .put("/:id", horarioController.editHorarioById)
-  .delete("/:id", horarioController.deleteHorarioById);
-// .post("/disponibilidad", );
+  .delete("/:id", horarioController.deleteHorarioById)
+  .post("/disponibilidad", horarioController.verificarHorarioDisponible);
 
 export default router;
