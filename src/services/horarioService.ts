@@ -70,23 +70,32 @@ const createHorario = async (data: HorarioProps) => {
   }
 };
 
+// const getHorarios = async (page: number, pageSize: number) => {
+//   const offset = (page - 1) * pageSize;
+//   const limit = pageSize;
 
+//   const { count, rows } = await Horario.findAndCountAll({
+//     order: [["id", "ASC"]],
+//     offset: offset,
+//     limit: limit,
+//   });
 
-const getHorarios = async (page: number, pageSize: number) => {
-  const offset = (page - 1) * pageSize;
-  const limit = pageSize;
+//   return {
+//     totalItems: count,
+//     totalPages: Math.ceil(count / pageSize),
+//     currentPage: page,
+//     pageSize: pageSize,
+//     data: rows,
+//   };
+// };
 
+const getHorarios = async () => {
   const { count, rows } = await Horario.findAndCountAll({
-    order: [["id", "ASC"]],
-    offset: offset,
-    limit: limit,
+    order: [["gimnasio", "ASC"]],
   });
 
   return {
     totalItems: count,
-    totalPages: Math.ceil(count / pageSize),
-    currentPage: page,
-    pageSize: pageSize,
     data: rows,
   };
 };
@@ -108,13 +117,58 @@ const deleteHorarioById = async (id: number) => {
   return horario;
 };
 
-const filterHorarios = async (
-  filters: Partial<HorarioProps>,
-  page: number,
-  pageSize: number
-) => {
-  const offset = (page - 1) * pageSize;
-  const limit = pageSize;
+// const filterHorarios = async (
+//   filters: Partial<HorarioProps>,
+//   page: number,
+//   pageSize: number
+// ) => {
+//   const offset = (page - 1) * pageSize;
+//   const limit = pageSize;
+//   const whereClause: any = {};
+
+//   // Filtros de texto
+//   if (filters.gimnasio) {
+//     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
+//   }
+//   if (filters.deporte) {
+//     whereClause.deporte = { [Op.iLike]: `%${filters.deporte}%` };
+//   }
+//   if (filters.dia) {
+//     whereClause.dia = { [Op.iLike]: `%${filters.dia}%` };
+//   }
+//   if (filters.categoria) {
+//     whereClause.categoria = { [Op.iLike]: `%${filters.categoria}%` };
+//   }
+
+//   // Filtros de horario
+//   if (filters.horarioInicio && filters.horarioFin) {
+//     whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
+//     whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
+//   } else if (filters.horarioInicio) {
+//     whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
+//     whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
+//   } else if (filters.horarioFin) {
+//     whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
+//     whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
+//   }
+
+//   // Búsqueda y conteo de resultados
+//   const { count, rows } = await Horario.findAndCountAll({
+//     where: whereClause,
+//     order: [["id", "ASC"]],
+//     offset: offset,
+//     limit: limit,
+//   });
+
+//   return {
+//     totalItems: count,
+//     totalPages: Math.ceil(count / pageSize),
+//     currentPage: page,
+//     pageSize: pageSize,
+//     data: rows,
+//   };
+// };
+const filterHorarios = async (filters: Partial<HorarioProps>) => {
   const whereClause: any = {};
 
   // Filtros de texto
@@ -127,33 +181,29 @@ const filterHorarios = async (
   if (filters.dia) {
     whereClause.dia = { [Op.iLike]: `%${filters.dia}%` };
   }
-  // if (filters.categoria) {
-  //   whereClause.categoria = { [Op.iLike]: `%${filters.categoria}%` };
-  // }
+  if (filters.categoria) {
+    whereClause.categoria = { [Op.iLike]: `%${filters.categoria}%` };
+  }
 
   // Filtros de horario
   if (filters.horarioInicio && filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.gte]: filters.horarioInicio };
-    whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
   } else if (filters.horarioInicio) {
-    whereClause.horarioInicio = { [Op.gte]: filters.horarioInicio };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
   } else if (filters.horarioFin) {
-    whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
+    whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
   }
 
-  // Búsqueda y conteo de resultados
-  const { count, rows } = await Horario.findAndCountAll({
+  // Búsqueda de resultados sin paginación
+  const rows = await Horario.findAll({
     where: whereClause,
-    order: [["id", "ASC"]],
-    offset: offset,
-    limit: limit,
+    order: [["horarioInicio", "ASC"]],
   });
 
   return {
-    totalItems: count,
-    totalPages: Math.ceil(count / pageSize),
-    currentPage: page,
-    pageSize: pageSize,
     data: rows,
   };
 };
@@ -165,5 +215,5 @@ export default {
   editHorarioById,
   deleteHorarioById,
   filterHorarios,
-  verificarDisponibilidad
+  verificarDisponibilidad,
 };

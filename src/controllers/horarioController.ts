@@ -72,20 +72,35 @@ const createHorario = async (req: Request, res: Response) => {
   }
 };
 
+// const getHorarios = async (req: Request, res: Response) => {
+//   try {
+//     const page = parseInt(req.query.page as string) || 1;
+//     const pageSize = 5;
+
+//     const response = await horarioService.getHorarios(page, pageSize);
+//     if (!response) {
+//       return res.status(400).send("Horarios not found");
+//     } else {
+//       return res.status(200).send(response);
+//     }
+//   } catch (error) {
+//     console.log("Error al obtener los horarios", error);
+//     return res.status(400).send({ error });
+//   }
+// };
+
 const getHorarios = async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const pageSize = 5;
+    const response = await horarioService.getHorarios();
 
-    const response = await horarioService.getHorarios(page, pageSize);
-    if (!response) {
-      return res.status(400).send("Horarios not found");
+    if (!response || response.totalItems === 0) {
+      return res.status(404).send("Horarios not found");
     } else {
       return res.status(200).send(response);
     }
   } catch (error) {
     console.log("Error al obtener los horarios", error);
-    return res.status(400).send({ error });
+    return res.status(500).send({ error: "Error al obtener los horarios" });
   }
 };
 
@@ -137,26 +152,50 @@ const deleteHorarioById = async (req: Request, res: Response) => {
   }
 };
 
+// const filterHorarios = async (req: Request, res: Response) => {
+//   const page = parseInt(req.query.page as string) || 1;
+//   const pageSize = 10;
+//   try {
+//     const filters: Partial<HorarioProps> = {};
+//     if (req.query.dia) filters.dia = req.query.dia as string;
+//     if (req.query.gimnasio) filters.gimnasio = req.query.gimnasio as string;
+//     if (req.query.deporte) filters.deporte = req.query.deporte as string;
+//     if (req.query.categoria) filters.categoria = req.query.categoria as string;
+//     if (req.query.horarioInicio) {
+//       filters.horarioInicio = req.query.horarioInicio as string;
+//     }
+//     if (req.query.horarioFin) {
+//       filters.horarioFin = req.query.horarioFin as string;
+//     }
+
+//     console.log("horarios recibidos:", filters);
+//     const horarios = await horarioService.filterHorarios(
+//       filters,
+//       page,
+//       pageSize
+//     );
+//     res.status(200).send(horarios);
+//   } catch (error) {
+//     console.log("Error al filtrar horarios", error);
+//     return res.status(500).send({ error });
+//   }
+// };
 const filterHorarios = async (req: Request, res: Response) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const pageSize = 10;
   try {
     const filters: Partial<HorarioProps> = {};
     if (req.query.dia) filters.dia = req.query.dia as string;
     if (req.query.gimnasio) filters.gimnasio = req.query.gimnasio as string;
     if (req.query.deporte) filters.deporte = req.query.deporte as string;
     if (req.query.categoria) filters.categoria = req.query.categoria as string;
-    if (req.query.horarioFin)
-      filters.horarioFin = req.query.horarioFin as string;
-    if (req.query.horarioInicio)
+    if (req.query.horarioInicio) {
       filters.horarioInicio = req.query.horarioInicio as string;
+    }
+    if (req.query.horarioFin) {
+      filters.horarioFin = req.query.horarioFin as string;
+    }
 
     console.log("horarios recibidos:", filters);
-    const horarios = await horarioService.filterHorarios(
-      filters,
-      page,
-      pageSize
-    );
+    const horarios = await horarioService.filterHorarios(filters);
     res.status(200).send(horarios);
   } catch (error) {
     console.log("Error al filtrar horarios", error);
@@ -171,5 +210,5 @@ export default {
   editHorarioById,
   deleteHorarioById,
   filterHorarios,
-  verificarHorarioDisponible
+  verificarHorarioDisponible,
 };

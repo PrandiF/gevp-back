@@ -94,7 +94,7 @@ const viewEventos = async (page: number, pageSize: number) => {
   const limit = pageSize;
 
   const { count, rows } = await Evento.findAndCountAll({
-    order: [["id", "ASC"]],
+    order: [["fecha", "ASC"]],
     offset: offset,
     limit: limit,
   });
@@ -138,37 +138,28 @@ const filterEventos = async (
   if (filters.gimnasio) {
     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
   }
-  if (filters.deporte) {
-    whereClause.deporte = { [Op.iLike]: `%${filters.deporte}%` };
-  }
-  if (filters.nombreSocio) {
-    whereClause.nombreSocio = { [Op.iLike]: `%${filters.nombreSocio}%` };
-  }
-  if (filters.evento) {
-    whereClause.evento = { [Op.iLike]: `%${filters.evento}%` };
-  }
 
   // Filtro de fecha
   if (filters.fecha) {
-    const startDate = new Date(`${filters.fecha}T00:00:00Z`);
-    const endDate = new Date(`${filters.fecha}T23:59:59Z`);
-    whereClause.fecha = { [Op.between]: [startDate, endDate] };
+    whereClause.fecha = { [Op.eq]: filters.fecha };
   }
 
   // Filtros de horario
   if (filters.horarioInicio && filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.gte]: filters.horarioInicio };
-    whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
   } else if (filters.horarioInicio) {
-    whereClause.horarioInicio = { [Op.gte]: filters.horarioInicio };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
   } else if (filters.horarioFin) {
-    whereClause.horarioFin = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
+    whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
   }
 
   // Búsqueda y conteo de resultados
   const { count, rows } = await Evento.findAndCountAll({
     where: whereClause,
-    order: [["id", "ASC"]],
+    order: [["fecha", "ASC"]],
     offset: offset,
     limit: limit,
   });
