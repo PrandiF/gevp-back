@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import db from "./database";
 
-// Define una interfaz para los atributos de tu modelo
 interface EventoAttributes {
   id: number;
   gimnasio: string;
@@ -14,7 +13,6 @@ interface EventoAttributes {
   horarioFin: string;
 }
 
-// Define una interfaz para la creación de un evento
 interface EventoCreationAttributes extends Optional<EventoAttributes, "id"> {}
 
 class Evento extends Model<EventoAttributes, EventoCreationAttributes>

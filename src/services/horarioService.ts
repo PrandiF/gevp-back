@@ -18,7 +18,7 @@ const verificarDisponibilidad = async (
   horarioFin: string
 ) => {
   try {
-    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+    const formatTime = (time: string) => time.slice(0, 5);
 
     const entrenamientoExistente = await Horario.findAll({
       where: {
@@ -27,19 +27,19 @@ const verificarDisponibilidad = async (
         [Op.and]: [
           {
             horarioInicio: {
-              [Op.lt]: formatTime(horarioFin), // El nuevo evento comienza antes de que el existente termine
+              [Op.lt]: formatTime(horarioFin),
             },
           },
           {
             horarioFin: {
-              [Op.gt]: formatTime(horarioInicio), // El nuevo evento termina después de que el existente comience
+              [Op.gt]: formatTime(horarioInicio),
             },
           },
         ],
       },
     });
 
-    return entrenamientoExistente.length > 0; // Devuelve true si hay eventos existentes, indicando que el horario está ocupado
+    return entrenamientoExistente.length > 0;
   } catch (error) {
     console.error("Error al verificar la disponibilidad del horario:", error);
     throw error;
@@ -48,8 +48,7 @@ const verificarDisponibilidad = async (
 
 const createHorario = async (data: HorarioProps) => {
   try {
-    // Asegúrate de que los horarios estén en formato HH:mm
-    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+    const formatTime = (time: string) => time.slice(0, 5);
 
     const entrenamientoExistente = await verificarDisponibilidad(
       data.gimnasio,
@@ -66,28 +65,9 @@ const createHorario = async (data: HorarioProps) => {
     }
   } catch (error) {
     console.error("Error al crear el entrenamiento:", error);
-    throw error; // Lanza el error para manejarlo en el controlador
+    throw error;
   }
 };
-
-// const getHorarios = async (page: number, pageSize: number) => {
-//   const offset = (page - 1) * pageSize;
-//   const limit = pageSize;
-
-//   const { count, rows } = await Horario.findAndCountAll({
-//     order: [["id", "ASC"]],
-//     offset: offset,
-//     limit: limit,
-//   });
-
-//   return {
-//     totalItems: count,
-//     totalPages: Math.ceil(count / pageSize),
-//     currentPage: page,
-//     pageSize: pageSize,
-//     data: rows,
-//   };
-// };
 
 const getHorarios = async () => {
   const { count, rows } = await Horario.findAndCountAll({
@@ -117,61 +97,9 @@ const deleteHorarioById = async (id: number) => {
   return horario;
 };
 
-// const filterHorarios = async (
-//   filters: Partial<HorarioProps>,
-//   page: number,
-//   pageSize: number
-// ) => {
-//   const offset = (page - 1) * pageSize;
-//   const limit = pageSize;
-//   const whereClause: any = {};
-
-//   // Filtros de texto
-//   if (filters.gimnasio) {
-//     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
-//   }
-//   if (filters.deporte) {
-//     whereClause.deporte = { [Op.iLike]: `%${filters.deporte}%` };
-//   }
-//   if (filters.dia) {
-//     whereClause.dia = { [Op.iLike]: `%${filters.dia}%` };
-//   }
-//   if (filters.categoria) {
-//     whereClause.categoria = { [Op.iLike]: `%${filters.categoria}%` };
-//   }
-
-//   // Filtros de horario
-//   if (filters.horarioInicio && filters.horarioFin) {
-//     whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
-//     whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
-//   } else if (filters.horarioInicio) {
-//     whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
-//     whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
-//   } else if (filters.horarioFin) {
-//     whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
-//     whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
-//   }
-
-//   // Búsqueda y conteo de resultados
-//   const { count, rows } = await Horario.findAndCountAll({
-//     where: whereClause,
-//     order: [["id", "ASC"]],
-//     offset: offset,
-//     limit: limit,
-//   });
-
-//   return {
-//     totalItems: count,
-//     totalPages: Math.ceil(count / pageSize),
-//     currentPage: page,
-//     pageSize: pageSize,
-//     data: rows,
-//   };
-// };
 const filterHorarios = async (filters: Partial<HorarioProps>) => {
   const whereClause: any = {};
 
-  // Filtros de texto
   if (filters.gimnasio) {
     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
   }
@@ -185,19 +113,17 @@ const filterHorarios = async (filters: Partial<HorarioProps>) => {
     whereClause.categoria = { [Op.iLike]: `%${filters.categoria}%` };
   }
 
-  // Filtros de horario
   if (filters.horarioInicio && filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
-    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio };
   } else if (filters.horarioInicio) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
-    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio };
   } else if (filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
-    whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioFin };
   }
 
-  // Búsqueda de resultados sin paginación
   const rows = await Horario.findAll({
     where: whereClause,
     order: [["horarioInicio", "ASC"]],

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import eventoService from "../services/eventoService";
-// import { body, param, validationResult } from 'express-validator';
 
 type EventoProps = {
   gimnasio: string;
@@ -16,13 +15,11 @@ type EventoProps = {
 const verificarHorarioDisponible = async (req: Request, res: Response) => {
   const { gimnasio, fecha, horarioInicio, horarioFin } = req.body;
 
-  // Verifica que todos los campos necesarios estén presentes
   if (!gimnasio || !fecha || !horarioInicio || !horarioFin) {
     return res.status(400).json({ message: "Faltan parámetros necesarios." });
   }
 
   try {
-    // Verifica la disponibilidad del horario utilizando el servicio
     const eventoExistente = await eventoService.verificarDisponibilidad(
       gimnasio,
       fecha,
@@ -30,7 +27,6 @@ const verificarHorarioDisponible = async (req: Request, res: Response) => {
       horarioFin
     );
 
-    // Devuelve una respuesta basada en la disponibilidad del horario
     if (eventoExistente) {
       return res
         .status(200)
@@ -152,7 +148,7 @@ const filterEventos = async (req: Request, res: Response) => {
       if (!isNaN(fecha.getTime())) {
         const fechaFinal = new Date(fecha);
         fechaFinal.setDate(fecha.getDate() + 1);
-        filters.fecha = fechaFinal; // Aquí se pasa el objeto Date directamente
+        filters.fecha = fechaFinal;
       } else {
         console.warn("Fecha inválida:", req.query.fecha);
         return res.status(400).send("Fecha inválida");

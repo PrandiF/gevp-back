@@ -13,13 +13,11 @@ type HorarioProps = {
 const verificarHorarioDisponible = async (req: Request, res: Response) => {
   const { gimnasio, dia, horarioInicio, horarioFin } = req.body;
 
-  // Verifica que todos los campos necesarios estén presentes
   if (!gimnasio || !dia || !horarioInicio || !horarioFin) {
     return res.status(400).json({ message: "Faltan parámetros necesarios." });
   }
 
   try {
-    // Verifica la disponibilidad del horario utilizando el servicio
     const entrenamientoExistente = await horarioService.verificarDisponibilidad(
       gimnasio,
       dia,
@@ -27,7 +25,6 @@ const verificarHorarioDisponible = async (req: Request, res: Response) => {
       horarioFin
     );
 
-    // Devuelve una respuesta basada en la disponibilidad del horario
     if (entrenamientoExistente) {
       return res
         .status(200)
@@ -71,23 +68,6 @@ const createHorario = async (req: Request, res: Response) => {
     return res.status(409);
   }
 };
-
-// const getHorarios = async (req: Request, res: Response) => {
-//   try {
-//     const page = parseInt(req.query.page as string) || 1;
-//     const pageSize = 5;
-
-//     const response = await horarioService.getHorarios(page, pageSize);
-//     if (!response) {
-//       return res.status(400).send("Horarios not found");
-//     } else {
-//       return res.status(200).send(response);
-//     }
-//   } catch (error) {
-//     console.log("Error al obtener los horarios", error);
-//     return res.status(400).send({ error });
-//   }
-// };
 
 const getHorarios = async (req: Request, res: Response) => {
   try {
@@ -152,34 +132,6 @@ const deleteHorarioById = async (req: Request, res: Response) => {
   }
 };
 
-// const filterHorarios = async (req: Request, res: Response) => {
-//   const page = parseInt(req.query.page as string) || 1;
-//   const pageSize = 10;
-//   try {
-//     const filters: Partial<HorarioProps> = {};
-//     if (req.query.dia) filters.dia = req.query.dia as string;
-//     if (req.query.gimnasio) filters.gimnasio = req.query.gimnasio as string;
-//     if (req.query.deporte) filters.deporte = req.query.deporte as string;
-//     if (req.query.categoria) filters.categoria = req.query.categoria as string;
-//     if (req.query.horarioInicio) {
-//       filters.horarioInicio = req.query.horarioInicio as string;
-//     }
-//     if (req.query.horarioFin) {
-//       filters.horarioFin = req.query.horarioFin as string;
-//     }
-
-//     console.log("horarios recibidos:", filters);
-//     const horarios = await horarioService.filterHorarios(
-//       filters,
-//       page,
-//       pageSize
-//     );
-//     res.status(200).send(horarios);
-//   } catch (error) {
-//     console.log("Error al filtrar horarios", error);
-//     return res.status(500).send({ error });
-//   }
-// };
 const filterHorarios = async (req: Request, res: Response) => {
   try {
     const filters: Partial<HorarioProps> = {};

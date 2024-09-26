@@ -20,7 +20,7 @@ const loginUser = async (username: string, password: string): Promise<{
         };
         const token = generateToken(payload, "7d");
 
-        console.log("Generated payload:", payload); // Verifica que el payload incluye el role correctamente
+        console.log("Generated payload:", payload);
 
         return { payload, token };
     } catch (error) {

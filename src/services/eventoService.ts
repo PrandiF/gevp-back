@@ -19,7 +19,7 @@ const verificarDisponibilidad = async (
   horarioFin: string
 ) => {
   try {
-    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+    const formatTime = (time: string) => time.slice(0, 5);
 
     const eventoExistente = await Evento.findAll({
       where: {
@@ -28,19 +28,19 @@ const verificarDisponibilidad = async (
         [Op.and]: [
           {
             horarioInicio: {
-              [Op.lt]: formatTime(horarioFin), // El nuevo evento comienza antes de que el existente termine
+              [Op.lt]: formatTime(horarioFin),
             },
           },
           {
             horarioFin: {
-              [Op.gt]: formatTime(horarioInicio), // El nuevo evento termina después de que el existente comience
+              [Op.gt]: formatTime(horarioInicio),
             },
           },
         ],
       },
     });
 
-    return eventoExistente.length > 0; // Devuelve true si hay eventos existentes, indicando que el horario está ocupado
+    return eventoExistente.length > 0;
   } catch (error) {
     console.error("Error al verificar la disponibilidad del horario:", error);
     throw error;
@@ -58,8 +58,7 @@ const createEvento = async (
   horarioFin: string
 ) => {
   try {
-    // Asegúrate de que los horarios estén en formato HH:mm
-    const formatTime = (time: string) => time.slice(0, 5); // Extrae HH:mm
+    const formatTime = (time: string) => time.slice(0, 5);
 
     const eventoExistente = await verificarDisponibilidad(
       gimnasio,
@@ -85,7 +84,7 @@ const createEvento = async (
     }
   } catch (error) {
     console.error("Error al crear el evento:", error);
-    throw error; // Lanza el error para manejarlo en el controlador
+    throw error;
   }
 };
 
@@ -134,29 +133,25 @@ const filterEventos = async (
   const limit = pageSize;
   const whereClause: any = {};
 
-  // Filtros de texto
   if (filters.gimnasio) {
     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
   }
 
-  // Filtro de fecha
   if (filters.fecha) {
     whereClause.fecha = { [Op.eq]: filters.fecha };
   }
 
-  // Filtros de horario
   if (filters.horarioInicio && filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // El evento empieza antes o a la misma hora que horarioFin
-    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // El evento termina después o a la misma hora que horarioInicio
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio };
   } else if (filters.horarioInicio) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio }; // Evento que empieza antes o a la misma hora
-    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio }; // Evento que termina después o a la misma hora
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioInicio };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioInicio };
   } else if (filters.horarioFin) {
-    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin }; // Evento que empieza antes o a la misma hora
-    whereClause.horarioFin = { [Op.gte]: filters.horarioFin }; // Evento que termina después o a la misma hora
+    whereClause.horarioInicio = { [Op.lte]: filters.horarioFin };
+    whereClause.horarioFin = { [Op.gte]: filters.horarioFin };
   }
 
-  // Búsqueda y conteo de resultados
   const { count, rows } = await Evento.findAndCountAll({
     where: whereClause,
     order: [["fecha", "ASC"]],
