@@ -1,10 +1,11 @@
 import { Router } from "express";
-import userController from "../controllers/usuarioController"
+import userController from "../controllers/usuarioController";
 
-const router = Router()
+const router = Router();
 
 router
-    .post("/login", userController.loginUser)
-    .post("/logout", userController.logoutUser)
-
+  .get("/", userController.getUsers)
+  .post("/login", userController.loginUser)
+  .post("/logout", userController.logoutUser)
+  .delete("/:id", userController.deleteUser);
 export default router;

@@ -28,5 +28,29 @@ const loginUser = async (username: string, password: string): Promise<{
     }
 };
 
+const getUsers = async ():Promise<Usuario[]> => {
+    try{
+        const users = await Usuario.findAll()
+        if(!users) throw new Error("Error users does not exists")
+        return users
+    } catch(error) {
+        throw new Error("Error when trying to login user:" + error)
+    }
+}
 
-export default {loginUser}
+const deleteUser = async (id: number): Promise<void> => {
+    try {
+        const userDeleted = await Usuario.destroy({ where: { id } });
+        
+        if (userDeleted === 0) {
+            throw new Error("User does not exist");
+        }
+        
+        return;
+    } catch (error) {
+        throw new Error("Error when trying to delete user: " + error);
+    }
+}
+
+
+export default {loginUser, getUsers, deleteUser}
