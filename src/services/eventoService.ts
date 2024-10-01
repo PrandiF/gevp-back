@@ -133,6 +133,10 @@ const filterEventos = async (
   const limit = pageSize;
   const whereClause: any = {};
 
+  if (filters.deporte) {
+    whereClause.deporte = { [Op.iLike]: `%${filters.deporte}%` };
+  }
+
   if (filters.gimnasio) {
     whereClause.gimnasio = { [Op.iLike]: `%${filters.gimnasio}%` };
   }
