@@ -141,6 +141,7 @@ const filterEventos = async (req: Request, res: Response) => {
 
   try {
     const filters: Partial<EventoProps> = {};
+    if (req.query.deporte) filters.deporte = req.query.deporte as string;
     if (req.query.gimnasio) filters.gimnasio = req.query.gimnasio as string;
 
     if (req.query.fecha) {
