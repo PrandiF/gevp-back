@@ -76,7 +76,7 @@ const createEvento = async (req: Request, res: Response) => {
 const viewEventos = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const pageSize = 5;
+    const pageSize = 6;
 
     const response = await eventoService.viewEventos(page, pageSize);
     if (!response) {
@@ -137,7 +137,7 @@ const deleteEventoById = async (req: Request, res: Response) => {
 
 const filterEventos = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const pageSize = 5;
+  const pageSize = 6;
 
   try {
     const filters: Partial<EventoProps> = {};
