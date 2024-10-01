@@ -10,8 +10,8 @@ import morgan from "morgan";
 dotenv.config();
 const app = express();
 
-const PORT = process.env.PORT;
-// const PORT = process.env.NODE_ENV === "prod" ? process.env.PORT_PROD : process.env.PORT;
+const PORT =
+  process.env.NODE_ENV === "prod" ? process.env.PORT_PROD : process.env.PORT;
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -20,12 +20,11 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    // origin:
-    // process.env.NODE_ENV === "prod"
-    //   ? ["https://gevp-front.vercel.app"]
-    //   : ["http://localhost:5173", "http://localhost:3000"],
+    origin:
+      process.env.NODE_ENV === "prod"
+        ? ["https://gevp-front.vercel.app"]
+        : ["http://localhost:5173", "http://localhost:3000"],
 
-    origin: ["http://localhost:5173", "http://localhost:3000"],
     credentials: true,
   })
 );
