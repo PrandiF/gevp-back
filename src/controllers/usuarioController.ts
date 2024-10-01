@@ -11,7 +11,7 @@ const loginUser = async (req: Request, res: Response) => {
     res.cookie("token", token, {
       sameSite: "none",
       httpOnly: true,
-      secure: true, // en producción cambiar a true
+      secure: true,
       path: "/",
     });
     res.status(200).json({ message: `User has been logged`, role: payload.role });
