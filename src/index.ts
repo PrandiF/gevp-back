@@ -22,7 +22,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "prod"
-        ? ["https://gevp-front.vercel.app"]
+        ? ["https://gevp-front.vercel.app", "https://app.clubgevp.com"]
         : ["http://localhost:5173"],
 
     credentials: true,
