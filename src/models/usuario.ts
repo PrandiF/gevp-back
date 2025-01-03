@@ -60,7 +60,7 @@ Usuario.sync()
       const userToCreate: UsuarioCreationAttributes[] = [
         {
           username: "gevp",
-          password: "gevp123",
+          password: "gevp3455",
           role: "employee",
         },
         {
