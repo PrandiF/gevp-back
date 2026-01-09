@@ -7,7 +7,7 @@ interface UsuarioAttributes {
   username: string;
   password: string;
   salt?: string;
-  role: "admin" | "employee";
+  role: "socio" | "employee";
 }
 
 interface UsuarioCreationAttributes
@@ -25,7 +25,7 @@ class Usuario extends Model {
   public username!: string;
   public password!: string;
   public salt!: string;
-  public role!: "admin" | "employee";
+  public role!: "socio" | "employee";
 }
 
 Usuario.init(
@@ -39,7 +39,7 @@ Usuario.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("admin", "employee"),
+      type: DataTypes.ENUM("socio", "employee"),
       allowNull: false,
     },
     salt: {
@@ -61,12 +61,12 @@ Usuario.sync()
         {
           username: "gevp",
           password: "gevp123",
-          role: "employee",
+          role: "socio",
         },
         {
           username: "departamento fisico",
           password: "jano3455",
-          role: "admin",
+          role: "employee",
         },
       ];
       const usersWithHashedPassword: UsuarioCreationAttributes[] =

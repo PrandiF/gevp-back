@@ -29,6 +29,11 @@ app.use(
   })
 );
 
+app.use((req, _res, next) => {
+  console.log("REQ:", req.method, req.url);
+  next();
+});
+
 app.use("/api", routes);
 
 db.sync({ force: false })

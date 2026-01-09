@@ -10,16 +10,18 @@ let db: Sequelize;
 
 if (isProd) {
   const connectionProd = process.env.DB_CONNECTION_INT;
-  
+
   if (!connectionProd) {
-    throw new Error("La cadena de conexión a la base de datos no está definida en producción.");
+    throw new Error(
+      "La cadena de conexión a la base de datos no está definida en producción."
+    );
   }
 
   db = new Sequelize(connectionProd, {
     dialect: "postgres",
     logging: false,
+    port: Number(process.env.PORT) || 5433,
   });
-
 } else {
   const connectionDev = {
     database: process.env.DB_NAME,
@@ -28,15 +30,27 @@ if (isProd) {
     host: process.env.DB_HOST,
   };
 
-  if (!connectionDev.database || !connectionDev.username || !connectionDev.password || !connectionDev.host) {
-    throw new Error("Faltan configuraciones para la conexión a la base de datos en desarrollo.");
+  if (
+    !connectionDev.database ||
+    !connectionDev.username ||
+    !connectionDev.password ||
+    !connectionDev.host
+  ) {
+    throw new Error(
+      "Faltan configuraciones para la conexión a la base de datos en desarrollo."
+    );
   }
 
-  db = new Sequelize(connectionDev.database, connectionDev.username, connectionDev.password, {
-    host: connectionDev.host,
-    dialect: "postgres",
-    logging: false,
-  });
+  db = new Sequelize(
+    connectionDev.database,
+    connectionDev.username,
+    connectionDev.password,
+    {
+      host: connectionDev.host,
+      dialect: "postgres",
+      logging: false,
+    }
+  );
 }
 
 export default db;

@@ -5,7 +5,7 @@ const loginUser = async (
   username: string,
   password: string
 ): Promise<{
-  payload: { username: string; role: "admin" | "employee" };
+  payload: { username: string; role: "socio" | "employee" };
   token: any;
 }> => {
   try {
