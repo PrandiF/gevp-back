@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 interface Payload {
   username: string;
-  role: "socio" | "empleado";
+  role: "socio" | "admin";
 }
 
 const generateToken = (payload: Payload, duration: string): string => {
