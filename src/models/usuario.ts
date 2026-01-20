@@ -7,11 +7,13 @@ interface UsuarioAttributes {
   username: string;
   password: string;
   salt?: string;
-  role: "socio" | "employee";
+  role: "socio" | "empleado";
 }
 
-interface UsuarioCreationAttributes
-  extends Optional<UsuarioAttributes, "username"> {}
+interface UsuarioCreationAttributes extends Optional<
+  UsuarioAttributes,
+  "username"
+> {}
 
 class Usuario extends Model {
   hash(password: string, salt: string) {
@@ -19,13 +21,13 @@ class Usuario extends Model {
   }
   validatePassword(password: string) {
     return this.hash(password, this.salt).then(
-      (newHash) => newHash === this.password
+      (newHash) => newHash === this.password,
     );
   }
   public username!: string;
   public password!: string;
   public salt!: string;
-  public role!: "socio" | "employee";
+  public role!: "socio" | "empleado";
 }
 
 Usuario.init(
@@ -39,7 +41,7 @@ Usuario.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("socio", "employee"),
+      type: DataTypes.ENUM("socio", "empleado"),
       allowNull: false,
     },
     salt: {
@@ -50,7 +52,7 @@ Usuario.init(
     sequelize: db,
     modelName: "usuarios",
     timestamps: false,
-  }
+  },
 );
 
 Usuario.sync()
@@ -66,7 +68,7 @@ Usuario.sync()
         {
           username: "departamento fisico",
           password: "jano3455",
-          role: "employee",
+          role: "empleado",
         },
       ];
       const usersWithHashedPassword: UsuarioCreationAttributes[] =

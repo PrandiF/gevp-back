@@ -3,9 +3,9 @@ import { generateToken } from "../config/tokens.config";
 
 const loginUser = async (
   username: string,
-  password: string
+  password: string,
 ): Promise<{
-  payload: { username: string; role: "socio" | "employee" };
+  payload: { username: string; role: "socio" | "empleado" };
   token: any;
 }> => {
   try {
