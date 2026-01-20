@@ -26,7 +26,7 @@ app.use(
         : ["http://localhost:5173"],
 
     credentials: true,
-  })
+  }),
 );
 
 app.use((req, _res, next) => {
