@@ -12,10 +12,12 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     const { payload, token } = await userService.loginUser(username, password);
 
+    const isProd = process.env.NODE_ENV === "prod";
+
     res.cookie("token", token, {
-      sameSite: "lax",
+      sameSite: isProd ? "none" : "lax",
       httpOnly: true,
-      secure: false,
+      secure: isProd,
       path: "/",
     });
 
