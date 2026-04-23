@@ -14,17 +14,20 @@ const loginUser = async (req: Request, res: Response) => {
 
     const isProd = process.env.NODE_ENV === "prod";
 
+    // 🍪 Cookie (para Chrome / flujo estándar)
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd, // 🔥 obligatorio en prod (Render + HTTPS)
-      sameSite: isProd ? "none" : "lax", // 🔥 clave para Safari + cross-domain
+      secure: isProd, // 🔥 obligatorio en producción
+      sameSite: isProd ? "none" : "lax", // 🔥 clave para cross-domain
       path: "/",
     });
 
+    // 📦 Response (para Safari fallback con Authorization header)
     return res.status(200).json({
       message: "User has been logged",
       role: payload.role,
       deporte: payload.deporte,
+      token, // 👈 🔥 MUY IMPORTANTE (nuevo)
     });
   } catch (error: any) {
     if (error.message === "Invalid password") {
