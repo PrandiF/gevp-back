@@ -13,15 +13,16 @@ const loginUser = async (req: Request, res: Response) => {
     const { payload, token } = await userService.loginUser(username, password);
 
     res.cookie("token", token, {
-      sameSite: "none",
+      sameSite: "lax",
       httpOnly: true,
-      secure: true,
+      secure: false,
       path: "/",
     });
 
     res.status(200).json({
       message: "User has been logged",
       role: payload.role,
+      deporte: payload.deporte,
     });
   } catch (error: any) {
     if (error.message === "Invalid password") {
@@ -35,33 +36,44 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-const socioLogin = async (req: Request, res: Response) => {
-  try {
-    const payload = {
-      username: "gevp",
-      role: "socio" as const,
-    };
+// const entrenadorLogin = async (req: Request, res: Response) => {
+//   try {
+//     const { sport } = req.body;
 
-    const token = generateToken(payload, "7d");
+//     if (!sport) {
+//       return res.status(400).send("Sport is required");
+//     }
 
-    res.cookie("token", token, {
-      sameSite: "none",
-      httpOnly: true,
-      secure: true,
-      path: "/",
-    });
+//     const payload = {
+//       username: "entrenador",
+//       role: "entrenador" as const,
+//       sport, // 👈 CLAVE
+//     };
 
-    res.status(200).json({ message: "Socio logged in", role: payload.role });
-  } catch (error) {
-    res.status(500).send("Error when trying to login as socio");
-  }
-};
+//     const token = generateToken(payload, "7d");
+
+//     res.cookie("token", token, {
+//       sameSite: "none",
+//       httpOnly: true,
+//       secure: true,
+//       path: "/",
+//     });
+
+//     res.status(200).json({
+//       message: "Entrenador logged",
+//       role: payload.role,
+//       sport: payload.sport,
+//     });
+//   } catch (error) {
+//     res.status(500).send("Error when trying to login as entrenador");
+//   }
+// };
 
 const logoutUser = (req: Request, res: Response) => {
   res.clearCookie("token", {
-    sameSite: "none",
+    sameSite: "lax",
     httpOnly: true,
-    secure: true,
+    secure: false,
     path: "/",
   });
   res.status(200).send("Cookies deleted");
@@ -86,4 +98,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { loginUser, logoutUser, getUsers, deleteUser, socioLogin };
+export default { loginUser, logoutUser, getUsers, deleteUser };

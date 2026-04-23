@@ -7,7 +7,16 @@ interface UsuarioAttributes {
   username: string;
   password: string;
   salt?: string;
-  role: "socio" | "admin";
+  role: "admin" | "entrenador";
+  deporte?:
+    | "Básquet"
+    | "Cesto"
+    | "Voley Masculino"
+    | "Voley Femenino"
+    | "Gimnasia Rítmica"
+    | "No Federados"
+    | "Otras Actividades"
+    | null;
 }
 
 interface UsuarioCreationAttributes extends Optional<
@@ -19,15 +28,26 @@ class Usuario extends Model {
   hash(password: string, salt: string) {
     return bcrypt.hash(password, salt);
   }
+
   validatePassword(password: string) {
     return this.hash(password, this.salt).then(
       (newHash) => newHash === this.password,
     );
   }
+
   public username!: string;
   public password!: string;
   public salt!: string;
-  public role!: "socio" | "admin";
+  public role!: "admin" | "entrenador";
+  public deporte!:
+    | "Básquet"
+    | "Cesto"
+    | "Voley Masculino"
+    | "Voley Femenino"
+    | "Gimnasia Rítmica"
+    | "No Federados"
+    | "Otras Actividades"
+    | null;
 }
 
 Usuario.init(
@@ -35,14 +55,34 @@ Usuario.init(
     username: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("socio", "admin"),
+      type: DataTypes.ENUM("admin", "entrenador"),
       allowNull: false,
+    },
+    deporte: {
+      type: DataTypes.ENUM(
+        "Básquet",
+        "Cesto",
+        "Voley Masculino",
+        "Voley Femenino",
+        "Gimnasia Rítmica",
+        "No Federados",
+        "Otras Actividades",
+      ),
+      allowNull: true,
+      validate: {
+        deporteRequiredForEntrenador() {
+          if (this.role === "entrenador" && !this.deporte) {
+            throw new Error("El entrenador debe tener un deporte asignado");
+          }
+        },
+      },
     },
     salt: {
       type: DataTypes.STRING,
@@ -54,39 +94,5 @@ Usuario.init(
     timestamps: false,
   },
 );
-
-Usuario.sync()
-  .then(async () => {
-    const count = await Usuario.count();
-    if (count === 0) {
-      const userToCreate: UsuarioCreationAttributes[] = [
-        {
-          username: "gevp",
-          password: "gevp123",
-          role: "socio",
-        },
-        {
-          username: "departamento fisico",
-          password: "jano3455",
-          role: "admin",
-        },
-      ];
-      const usersWithHashedPassword: UsuarioCreationAttributes[] =
-        userToCreate.map((user) => {
-          const salt = bcrypt.genSaltSync();
-          const hashedPassword = bcrypt.hashSync(user.password, salt);
-          return {
-            ...user,
-            salt: salt,
-            password: hashedPassword,
-          };
-        });
-      await Usuario.bulkCreate(usersWithHashedPassword);
-      console.log("Default users created successfully.");
-    }
-  })
-  .catch((error) => {
-    console.error("Error creating users:", error);
-  });
 
 export default Usuario;

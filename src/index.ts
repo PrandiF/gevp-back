@@ -6,6 +6,9 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import morgan from "morgan";
+import http from "http";
+import { initSocket } from "./socket/socketServer";
+import { seedDefaultUsers, updateUsernames } from "./utils/UsersSeed";
 
 dotenv.config();
 const app = express();
@@ -36,8 +39,22 @@ app.use((req, _res, next) => {
 
 app.use("/api", routes);
 
-db.sync({ force: false })
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((error) => console.error(error));
+db.sync({ force: false }).then(async () => {
+  console.log("✅ Database synced");
+
+  if (process.env.RUN_UPDATE_USERNAMES === "true") {
+    console.log("🔄 Running username updates...");
+    await updateUsernames();
+  }
+
+  if (process.env.RUN_SEED_USERS === "true") {
+    console.log("🌱 Running user seed...");
+    await seedDefaultUsers();
+  }
+
+  const server = http.createServer(app);
+
+  initSocket(server);
+
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});
