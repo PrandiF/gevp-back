@@ -7,7 +7,9 @@ export const authMiddleware = (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies.token;
+    // 🔥 cookie o fallback header (más robusto)
+    const token =
+      req.cookies?.token || req.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {
       return res.status(401).send("No token provided");
@@ -15,11 +17,10 @@ export const authMiddleware = (
 
     const user = validateToken(token);
 
-    // ⚠️ TypeScript no sabe que existe "user"
     (req as any).user = user;
 
     next();
-  } catch {
+  } catch (error) {
     return res.status(401).send("Unauthorized");
   }
 };
