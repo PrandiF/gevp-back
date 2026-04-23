@@ -7,8 +7,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import morgan from "morgan";
 import http from "http";
-import { initSocket } from "./socket/socketServer";
 import { seedDefaultUsers, updateUsernames } from "./utils/UsersSeed";
+import { initSocket } from "./socket/socketServer";
 
 dotenv.config();
 const app = express();
