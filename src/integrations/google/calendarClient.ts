@@ -1,18 +1,23 @@
 import { google } from "googleapis";
-import path from "path";
+
+const serviceAccountRaw = process.env.GOOGLE_SERVICE_ACCOUNT;
+
+if (!serviceAccountRaw) {
+  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT env variable");
+}
+
+const serviceAccount = JSON.parse(serviceAccountRaw);
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, "service-account.json"),
+  credentials: serviceAccount,
   scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 
 export const GetCalendarClient = async () => {
   const authClient = await auth.getClient();
 
-  const calendar = google.calendar({
+  return google.calendar({
     version: "v3",
-    auth: authClient as any, // 👈 fix typings googleapis
+    auth: authClient as any,
   });
-
-  return calendar;
 };
