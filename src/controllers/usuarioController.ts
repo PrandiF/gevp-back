@@ -15,13 +15,13 @@ const loginUser = async (req: Request, res: Response) => {
     const isProd = process.env.NODE_ENV === "prod";
 
     res.cookie("token", token, {
-      sameSite: isProd ? "none" : "lax",
       httpOnly: true,
-      secure: isProd,
+      secure: isProd, // 🔥 obligatorio en prod (Render + HTTPS)
+      sameSite: isProd ? "none" : "lax", // 🔥 clave para Safari + cross-domain
       path: "/",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "User has been logged",
       role: payload.role,
       deporte: payload.deporte,
@@ -30,11 +30,14 @@ const loginUser = async (req: Request, res: Response) => {
     if (error.message === "Invalid password") {
       return res.status(401).send("Invalid password");
     }
+
     if (error.message === "User does not exist") {
       return res.status(404).send("User does not exist");
     }
 
-    res.status(500).send(`Error when trying to login user: ${error.message}`);
+    return res
+      .status(500)
+      .send(`Error when trying to login user: ${error.message}`);
   }
 };
 
