@@ -1,5 +1,8 @@
 node_modules
 .env
 dist
+google-service-account.json
+service-account.json
+
 
 package-lock.json

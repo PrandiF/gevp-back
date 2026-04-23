@@ -5,24 +5,54 @@ const loginUser = async (
   username: string,
   password: string,
 ): Promise<{
-  payload: { username: string; role: "socio" | "admin" };
-  token: any;
+  payload: {
+    username: string;
+    role: "entrenador" | "admin";
+    deporte: string | null;
+  };
+  token: string;
 }> => {
   try {
+    console.log("🔐 LOGIN ATTEMPT:", username);
+
     const user = await Usuario.findOne({ where: { username } });
-    if (!user) throw new Error("User does not exist");
+
+    if (!user) {
+      console.log("❌ USER NOT FOUND");
+      throw new Error("User does not exist");
+    }
+
+    console.log("👤 USER FOUND:", {
+      username: user.username,
+      role: user.role,
+      deporte: user.deporte,
+    });
 
     const isPasswordValid = await user.validatePassword(password);
-    if (!isPasswordValid) throw new Error("Invalid password");
+
+    if (!isPasswordValid) {
+      console.log("❌ INVALID PASSWORD");
+      throw new Error("Invalid password");
+    }
+
+    console.log("✅ PASSWORD OK");
 
     const payload = {
       username: user.username,
       role: user.role,
+      deporte: user.deporte ?? null,
     };
+
+    console.log("📦 PAYLOAD GENERATED:", payload);
+
     const token = generateToken(payload, "7d");
+
+    console.log("🎟️ TOKEN GENERATED");
 
     return { payload, token };
   } catch (error: any) {
+    console.log("🔥 LOGIN ERROR:", error.message);
+
     if (error.message === "User does not exist") {
       throw new Error("User does not exist");
     }

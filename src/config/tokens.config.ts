@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 
-interface Payload {
+export interface Payload {
   username: string;
-  role: "socio" | "admin";
+  role: "admin" | "entrenador";
+  deporte?: string | null; // 👈 deporte es opcional porque el admin no lo tiene
 }
 
 const generateToken = (payload: Payload, duration: string): string => {
