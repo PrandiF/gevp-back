@@ -150,10 +150,34 @@ const cancelarInstance = async (req: Request, res: Response) => {
   }
 };
 
+const editHorario = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  const { id } = req.params;
+
+  try {
+    if (!user) {
+      return res.status(401).send("No autorizado");
+    }
+
+    const horario = await horarioService.editHorario(id, req.body, user);
+
+    return res.status(200).json({
+      horario,
+    });
+  } catch (error: any) {
+    console.error("Error al editar horario", error);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 export default {
   createHorario,
   getHorarios,
-
+  editHorario,
   // editHorarioById,
   cancelarSerieCompleta,
   cancelarInstance,

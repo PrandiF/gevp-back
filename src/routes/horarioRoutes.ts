@@ -7,10 +7,10 @@ const router = Router();
 
 router
   .post("/", authMiddleware, horarioController.createHorario)
-  .get("/", authMiddleware, horarioController.getHorarios);
-// .get("/filter", horarioController.filterHorarios)
-// .get("/:id", horarioController.getHorarioById)
-// .put("/:id", horarioController.editHorarioById);
+  .get("/", authMiddleware, horarioController.getHorarios)
+  // .get("/filter", horarioController.filterHorarios)
+  // .get("/:id", horarioController.getHorarioById)
+  .put("/:id", authMiddleware, horarioController.editHorario);
 // ✅ cancelar instancia individual
 router.delete(
   "/serie/:eventId",
