@@ -6,9 +6,12 @@ type UpdateCalendarEventProps = {
   calendarId: string;
   eventId: string;
   title: string;
-  start: string; // ISO string
-  end: string; // ISO string
-  recurrence?: string[]; // opcional, para eventos recurrentes
+  start: string;
+  end: string;
+  recurrence?: string[];
+
+  // NUEVO
+  editMode?: "series" | "single";
 };
 
 export async function updateCalendarEvent({
@@ -18,26 +21,40 @@ export async function updateCalendarEvent({
   start,
   end,
   recurrence,
+  editMode = "series",
 }: UpdateCalendarEventProps) {
   const calendar = await GetCalendarClient();
 
   const requestBody: any = {
     summary: title,
+
     start: {
       dateTime: start,
       timeZone: TIMEZONE,
     },
+
     end: {
       dateTime: end,
       timeZone: TIMEZONE,
     },
   };
 
-  if (recurrence) {
+  // solamente las series tienen recurrencia
+  if (editMode === "series" && recurrence) {
     requestBody.recurrence = recurrence;
   }
 
-  const response = await calendar.events.update({
+  if (editMode === "series") {
+    const response = await calendar.events.update({
+      calendarId,
+      eventId,
+      requestBody,
+    });
+
+    return response.data;
+  }
+
+  const response = await calendar.events.patch({
     calendarId,
     eventId,
     requestBody,

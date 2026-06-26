@@ -24,6 +24,20 @@ type HorarioProps = {
   tipoDeActividad: string;
 };
 
+type EditHorarioDTO = {
+  gimnasio: string;
+  deporte: string;
+  categoria: string;
+  tipoDeActividad: string;
+  start: string | Date;
+  end: string | Date;
+  recurrence: boolean;
+
+  editMode: "single" | "series";
+
+  instanceId?: string;
+};
+
 const CLUB_CALENDAR_ID =
   "4bf1d63d6be261a1a85ece62f7083d3a246abd16a77af7137b9f514d3c83eef1@group.calendar.google.com";
 
@@ -103,59 +117,108 @@ const getHorarioById = async (id: string) => {
   return await Horario.findOne({ where: { id } });
 };
 
-// const editHorarioById = async (id: number, data: HorarioProps) => {
-//   const horario = await Horario.findOne({ where: { id } });
-//   if (!horario) throw new Error("Horario not found");
+const editHorario = async (
+  id: string,
+  data: EditHorarioDTO,
+  user: {
+    role: string;
+    deporte?: string | null;
+  },
+) => {
+  const horario = await Horario.findByPk(id);
 
-//   // =========================
-//   // ACTUALIZAR GOOGLE CALENDAR
-//   // =========================
-//   if (horario.googleEventId && horario.calendarId) {
-//     // Construimos fechas ISO y día para recurrencia
-//     const { startDateTime, endDateTime, googleDay } = buildDateTime(
-//       data.start,
-//       data.end,
-//     );
+  if (!horario) {
+    throw new Error("Horario no encontrado");
+  }
 
-//     const title = `${data.deporte} - ${data.categoria} (${data.gimnasio})`;
+  /**
+   * ==========================================
+   * VALIDACIÓN ENTRENADOR
+   * ==========================================
+   */
 
-//     await updateCalendarEvent({
-//       calendarId: horario.calendarId,
-//       eventId: horario.googleEventId,
-//       title,
-//       start: startDateTime, // ya es string ISO, no hace falta convertir
-//       end: endDateTime,
-//       recurrence: googleDay
-//         ? [`RRULE:FREQ=WEEKLY;BYDAY=${googleDay}`]
-//         : undefined,
-//     });
-//   }
+  if (user.role === "entrenador") {
+    if (!user.deporte || horario.deporte !== user.deporte) {
+      throw new Error("No autorizado");
+    }
+  }
 
-//   // =========================
-//   // ACTUALIZAR DB
-//   // =========================
-//   const updatedHorario = await horario.update({ ...data });
+  const start = new Date(data.start);
+  const end = new Date(data.end);
 
-//   // =========================
-//   // NOTIFICACIÓN SOLO ADMIN
-//   // =========================
-//   await notificationsService.createNotification(
-//     `Horario modificado: ${horario.deporte} - ${horario.categoria} (${horario.start.toLocaleTimeString()} - ${horario.end.toLocaleTimeString()})`,
-//     "HORARIO_EDITADO",
-//     {
-//       sendMail: true,
-//       adminName: "Departamento Fisico",
-//       adminEmail: "francoprandipruebas@gmail.com",
-//       deporte: horario.deporte,
-//       categoria: horario.categoria,
-//       horario: `${horario.start.toLocaleTimeString()} - ${horario.end.toLocaleTimeString()}`,
-//       fecha: horario.start.toLocaleDateString(),
-//     },
-//   );
+  const { startDateTime, endDateTime, googleDay } = buildDateTime(start, end);
 
-//   return updatedHorario;
-// };
+  const title = `${data.deporte} - ${data.categoria} (${data.gimnasio})`;
 
+  /**
+   * ==========================================
+   * EDITAR UNA SOLA INSTANCIA
+   * ==========================================
+   */
+
+  if (data.editMode === "single") {
+    if (!data.instanceId) {
+      throw new Error("Falta instanceId");
+    }
+
+    await updateCalendarEvent({
+      calendarId: horario.calendarId!,
+      eventId: data.instanceId,
+      title,
+      start: startDateTime,
+      end: endDateTime,
+      editMode: "single",
+    });
+
+    // La base guarda únicamente la serie.
+    // Las instancias individuales viven en Google Calendar.
+    const updatedInstance = await updateCalendarEvent({
+      calendarId: horario.calendarId!,
+      eventId: data.instanceId,
+      title,
+      start: startDateTime,
+      end: endDateTime,
+      editMode: "single",
+    });
+
+    return updatedInstance;
+  }
+
+  /**
+   * ==========================================
+   * EDITAR TODA LA SERIE
+   * ==========================================
+   */
+
+  await updateCalendarEvent({
+    calendarId: horario.calendarId!,
+    eventId: horario.googleEventId!,
+    title,
+    start: startDateTime,
+    end: endDateTime,
+    recurrence: data.recurrence
+      ? [`RRULE:FREQ=WEEKLY;BYDAY=${googleDay}`]
+      : undefined,
+    editMode: "series",
+  });
+
+  /**
+   * ==========================================
+   * ACTUALIZAR BASE DE DATOS
+   * ==========================================
+   */
+
+  await horario.update({
+    gimnasio: data.gimnasio,
+    deporte: data.deporte,
+    categoria: data.categoria,
+    tipoDeActividad: data.tipoDeActividad,
+    start,
+    end,
+  });
+
+  return horario;
+};
 const deleteEventFromAnyCalendar = async (eventId: string) => {
   const calendarClient = await GetCalendarClient();
 
@@ -282,7 +345,7 @@ export default {
   createHorario,
   getHorarios,
   getHorarioById,
-  // editHorarioById,
+  editHorario,
   cancelarSerieCompleta,
   cancelarInstance,
   getHorarioByGoogleId,
