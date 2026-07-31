@@ -57,6 +57,14 @@ const createHorario = async (
   const start = new Date(data.start);
   const end = new Date(data.end);
 
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    throw new Error("Fecha u horario inválido");
+  }
+
+  if (start >= end) {
+    throw new Error("El horario de inicio debe ser anterior al horario de fin");
+  }
+
   if (user.role === "entrenador") {
     if (!user.deporte || data.deporte !== user.deporte) {
       throw new Error("No autorizado para este deporte");

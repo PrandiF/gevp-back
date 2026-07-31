@@ -49,7 +49,12 @@ const createHorario = async (req: Request, res: Response) => {
     return res.status(201).json({ horario: nuevoHorario });
   } catch (error) {
     console.log("Error al crear el horario", error);
-    return res.status(409);
+    const message =
+      error instanceof Error ? error.message : "Error al crear el horario";
+
+    return res.status(409).json({
+      message,
+    });
   }
 };
 
