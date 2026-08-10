@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export type Sport =
   | "Básquet"
   | "Cesto"
@@ -7,43 +11,59 @@ export type Sport =
   | "No Federados"
   | "Otras Actividades";
 
+const isProd = process.env.NODE_ENV === "prod";
+
 export const SPORTS_CALENDARS: Record<
   Sport,
   { calendarId: string; color: string }
 > = {
   Básquet: {
-    calendarId:
-      "03b884e5cce57d7332740f49cc420b4e35f0881c76059f9106ad2d675139df2b@group.calendar.google.com",
+    calendarId: isProd
+      ? (process.env.BASQUET_CALENDAR_ID_PROD as string)
+      : (process.env.BASQUET_CALENDAR_ID_DEV as string),
+
     color: "#0066CC",
   },
+
   Cesto: {
-    calendarId:
-      "9b582b388b4f8944f5b0500be3013d3863e299afafa145fe36df9ccc9afce09e@group.calendar.google.com",
+    calendarId: isProd
+      ? (process.env.CESTO_CALENDAR_ID_PROD as string)
+      : (process.env.CESTO_CALENDAR_ID_DEV as string),
     color: "#34A853",
   },
+
   "Voley Masculino": {
-    calendarId:
-      "25145c42a7ac9067998a2f21b2312b22c6a89cb99900deec02eabd3503da505a@group.calendar.google.com",
+    calendarId: isProd
+      ? (process.env.VOLEYMASC_CALENDAR_ID_PROD as string)
+      : (process.env.VOLEYMASC_CALENDAR_ID_DEV as string),
     color: "#FBBC05",
   },
+
   "Voley Femenino": {
-    calendarId:
-      "cb9232a5979f1574f9c6f346c973cb6552fe4111005b3500a4d4c335feb8e060@group.calendar.google.com",
-    color: "#b68904ff",
+    calendarId: isProd
+      ? (process.env.VOLEYFEM_CALENDAR_ID_PROD as string)
+      : (process.env.VOLEYFEM_CALENDAR_ID_DEV as string),
+    color: "#b68904",
   },
+
   "Gimnasia Rítmica": {
-    calendarId:
-      "c5a6653276e620da6442dec8b645262b89ddef4fa22b39b74b168e2649ad6325@group.calendar.google.com",
+    calendarId: isProd
+      ? (process.env.GIMNASIA_CALENDAR_ID_PROD as string)
+      : (process.env.GIMNASIA_CALENDAR_ID_DEV as string),
     color: "#9C27B0",
   },
+
   "No Federados": {
-    calendarId:
-      "8ee0f9c181b2b9e8b0873a0bbe67e37b218b3d21e15fc1fa5aff1cc2ddbe976b@group.calendar.google.com",
+    calendarId: isProd
+      ? (process.env.NOFEDERADOS_CALENDAR_ID_PROD as string)
+      : (process.env.NOFEDERADOS_CALENDAR_ID_DEV as string),
     color: "#F44336",
   },
+
   "Otras Actividades": {
-    calendarId:
-      "187bbc45717be46db7c30a1ef8ae4e187d508fded54af98569b957ad82edc357@group.calendar.google.com",
-    color: "#00c0b3",
+    calendarId: isProd
+      ? (process.env.OTRASACTIV_CALENDAR_ID_PROD as string)
+      : (process.env.OTRASACTIV_CALENDAR_ID_DEV as string),
+    color: "#00C0B3",
   },
 };

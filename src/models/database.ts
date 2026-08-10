@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+console.log("NODE_ENV:", process.env.NODE_ENV);
+
 const isProd = process.env.NODE_ENV === "prod";
 
 let db: Sequelize;
@@ -31,7 +33,7 @@ if (isProd) {
       host: process.env.DB_HOST,
       dialect: "postgres",
       logging: false,
-    }
+    },
   );
 }
 
