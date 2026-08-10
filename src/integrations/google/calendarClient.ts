@@ -1,12 +1,28 @@
 import { google } from "googleapis";
+import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 
-const serviceAccountRaw = process.env.GOOGLE_SERVICE_ACCOUNT;
+dotenv.config();
 
-if (!serviceAccountRaw) {
-  throw new Error("Missing GOOGLE_SERVICE_ACCOUNT env variable");
+let serviceAccount;
+
+if (process.env.NODE_ENV === "prod") {
+  const serviceAccountRaw = process.env.GOOGLE_SERVICE_ACCOUNT;
+
+  if (!serviceAccountRaw) {
+    throw new Error("Missing GOOGLE_SERVICE_ACCOUNT env variable");
+  }
+
+  serviceAccount = JSON.parse(serviceAccountRaw);
+} else {
+  const serviceAccountPath = path.join(
+    process.cwd(),
+    "google-service-account-dev.json",
+  );
+
+  serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
 }
-
-const serviceAccount = JSON.parse(serviceAccountRaw);
 
 const auth = new google.auth.GoogleAuth({
   credentials: serviceAccount,
