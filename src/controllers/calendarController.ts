@@ -85,6 +85,9 @@ const getEvents = async (req: Request, res: Response) => {
         categoria: horario?.categoria ?? null,
         gimnasio: horario?.gimnasio ?? null,
         quienCarga: horario?.quienCarga ?? null,
+        tipoDeActividad: horario?.tipoDeActividad ?? null,
+        recurringEventId:
+          horario?.recurringEventId ?? event.recurringEventId ?? null,
       };
     });
 
