@@ -60,13 +60,13 @@ export async function seedDefaultUsers() {
       deporte: null,
     },
     {
-      username: "basquet profesional",
+      username: "basquet gevp",
       password: "basquet1234",
       role: "entrenador",
       deporte: "Básquet",
     },
     {
-      username: "cesto elite",
+      username: "cesto gevp",
       password: "cesto1234",
       role: "entrenador",
       deporte: "Cesto",
