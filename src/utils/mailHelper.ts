@@ -63,3 +63,45 @@ export const buildCancelEmail = (
     </div>
   `;
 };
+
+export const buildHorarioLiberadoEmail = (data: {
+  gimnasio: string;
+  deporte: string;
+  categoria: string;
+  tipoDeActividad: string;
+  start: Date;
+  end: Date;
+}) => {
+  const fecha = data.start.toLocaleDateString("es-AR");
+
+  const horario = `${data.start.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} - ${data.end.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+
+  return `
+    <div style="font-family: Arial, sans-serif;">
+      <h2>📢 Espacio liberado</h2>
+
+      <p>
+        Debido a una modificación del cronograma, se liberó el siguiente espacio:
+      </p>
+
+      <p><strong>Tipo de actividad:</strong> ${data.tipoDeActividad}</p>
+      <p><strong>Deporte:</strong> ${data.deporte}</p>
+      <p><strong>Categoría:</strong> ${data.categoria}</p>
+      <p><strong>Gimnasio:</strong> ${data.gimnasio}</p>
+      <p><strong>Fecha:</strong> ${fecha}</p>
+      <p><strong>Horario:</strong> ${horario}</p>
+
+      <hr />
+
+      <p style="color:#777;font-size:12px">
+        Notificación automática del sistema GEVP
+      </p>
+    </div>
+  `;
+};

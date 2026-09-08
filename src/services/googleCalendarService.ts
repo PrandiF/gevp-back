@@ -97,7 +97,11 @@ export const deleteCalendarEvent = async (
    GET EVENTS FROM ONE CALENDAR
 ===================================================== */
 
-export const getEventsFromCalendar = async (calendarId: string) => {
+export const getEventsFromCalendar = async (
+  calendarId: string,
+  timeMin?: Date,
+  timeMax?: Date,
+) => {
   const calendarClient = await GetCalendarClient();
 
   console.log("🔎 Buscando eventos en:", calendarId);
@@ -115,8 +119,13 @@ export const getEventsFromCalendar = async (calendarId: string) => {
     timeZone: TIMEZONE,
 
     // 🔥 ESTO TE FALTABA
-    timeMin: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7).toISOString(), // -7 días
-    timeMax: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 60).toISOString(), // +60 días
+    timeMin: (
+      timeMin ?? new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7)
+    ).toISOString(),
+
+    timeMax: (
+      timeMax ?? new Date(now.getTime() + 1000 * 60 * 60 * 24 * 60)
+    ).toISOString(),
 
     maxResults: 250,
   });
@@ -169,4 +178,20 @@ export const getAllEvents = async () => {
   console.log("📊 TOTAL EVENTOS:", allEvents.length);
 
   return allEvents;
+};
+
+export const getEventsBetweenDates = async (start: Date, end: Date) => {
+  const calendars = Object.values(SPORTS_CALENDARS);
+
+  const results = await Promise.all(
+    calendars.map((calendar) =>
+      getEventsFromCalendar(
+        calendar.calendarId,
+        new Date(start.getTime() - 1000 * 60 * 60 * 24),
+        new Date(end.getTime() + 1000 * 60 * 60 * 24),
+      ),
+    ),
+  );
+
+  return results.flat();
 };

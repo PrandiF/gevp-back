@@ -2,6 +2,24 @@ import * as calendarService from "../services/googleCalendarService";
 import { Request, Response } from "express";
 import Horario from "../models/horario";
 
+// =========================
+// HELPERS
+// =========================
+
+const parseSummary = (summary: string) => {
+  const match = summary.match(/^(.*?) - (.*?) \((.*?)\)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    deporte: match[1],
+    categoria: match[2],
+    gimnasio: match[3],
+  };
+};
+
 const getCalendarBySport = (req: Request, res: Response) => {
   try {
     const { sport } = req.params;
@@ -74,16 +92,24 @@ const getEvents = async (req: Request, res: Response) => {
         });
       }
 
+      const parsed = parseSummary(event.summary ?? "");
+
+      console.log(event.start);
+      console.log(event.end);
+
       return {
         id: event.id,
+        horarioId: horario?.id ?? null,
         title: event.summary,
         start: event.start?.dateTime || event.start?.date,
         end: event.end?.dateTime || event.end?.date,
 
         // datos del club (DB)
-        deporte: horario?.deporte ?? null,
-        categoria: horario?.categoria ?? null,
-        gimnasio: horario?.gimnasio ?? null,
+        deporte: parsed?.deporte ?? horario?.deporte ?? null,
+
+        categoria: parsed?.categoria ?? horario?.categoria ?? null,
+
+        gimnasio: parsed?.gimnasio ?? horario?.gimnasio ?? null,
         quienCarga: horario?.quienCarga ?? null,
         tipoDeActividad: horario?.tipoDeActividad ?? null,
         recurringEventId:
